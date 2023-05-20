@@ -46,9 +46,20 @@ router.put('/:id', async (req,res,next) => {
         if (test.rowCount <= 0) {
             throw new ExpressError('not found',404);
         }
-        if (req.body.amt){
-            db.query(`UPDATE invoices SET amt = $1 WHERE id = $2`,[req.body.amt,id])
+        const {amt,paid} = req.body
+        const currPaidDate = test.rows[0].paid_date;
+
+        if (!currPaidDate && paid) {
+            paidDate = new Date();
+        } else if (!paid) {
+            paidDate = null
+        } else {
+            paidDate = currPaidDate;
         }
+        if (amt && paid){
+            db.query(`UPDATE invoices SET amt = $1, paid = $2,paid_date = $3 WHERE id = $4`,[amt,paid,paidDate,id])
+        }
+        console.log(paidDate)
         const inv = await db.query(`SELECT * FROM invoices WHERE id = $1`,[id])
         return res.json({invoice:inv.rows})
     } catch(e) {

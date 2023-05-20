@@ -3,6 +3,8 @@ const router = new express.Router();
 const {db} = require('../db');
 const app = require('../app');
 const ExpressError = require('../expressError');
+const slugify = require('slugify');
+
 
 
 router.get('/',async (req,res,next) => {
@@ -32,7 +34,7 @@ router.get('/:code',async (req,res,next) => {
 
 router.post('/', async (req,res,next) => {
     try {
-        const code = req.body.code;
+        let code = slugify(name, {lower: true});
         const name = req.body.name;
         const description = req.body.description;
         const result = await db.query(
